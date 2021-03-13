@@ -1,6 +1,7 @@
 # Import library
 from bs4 import BeautifulSoup
 
+import pandas as pd
 import requests
 
 main_URL = "https://quotes.toscrape.com"
@@ -26,7 +27,7 @@ while True:
     
     for row in itr:
         quote = {}
-        quote['quote'] = row.find_all('span')[0].text
+        quote['quote'] = row.find_all('span')[0].text[1:-1]
         quote['author'] = row.find_all('span')[1].small.text
         quote['author_bio'] = main_URL + row.find_all('span')[1].a['href']
         
@@ -36,6 +37,8 @@ while True:
         for row2 in tags_itr:
             tags_list.append(row2.text)
         
+        quote['tags'] = tags_list
+        
         quotes.append(quote)
         
     # End Page detection    
@@ -43,3 +46,7 @@ while True:
         break
     else:
         page_num += 1
+
+# Write quotes to csv
+quotes_df = pd.DataFrame.from_dict(quotes)
+quotes_df.to_csv("quotes.csv", index = False)
